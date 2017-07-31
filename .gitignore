@@ -1,3 +1,7 @@
-/logs/
-/data/
-/figures/
+Stata/logs/
+Stata/data/
+Stata/figures/
+R/logs/
+R/data/
+R/.Rhistory
+R/.Rproj.user
