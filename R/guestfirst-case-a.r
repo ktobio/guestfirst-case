@@ -34,16 +34,86 @@ library("readstata13")
 
 
 guestfirstA.case.data <- read.csv("data/guestfirst-case-data-part-a.csv")
-
+save("guestfirstA.case.data", file = "data/guestfirstA_data")
 
 # The following command reads the PA_Store24B_data data frame, previously saved to file in the 
 # "store24-prep.r" script.
 
-load("guestfirstA.case.data")
+load("data/guestfirstA_data")
+
+contents(guestfirstA.case.data)
 
 # The following command lists the first 5 rows of the guestfirstA.case.data".
 
-head("data/guestfirstA.case.data",n=5L)
+head("data/guestfirstA_data",n=5L)
+
+guestfirstA.case.data <- cbind(guestfirstA.case.data, "observation"=1:nrow(guestfirstA.case.data)) 
+
+#install.packages("reshape")
+library("reshape")
+md <- melt(mydata, id=(c("id", "time")))
+guestfirstA.transpose.case.data = reshape(data = guestfirstA.case.data,
+                                          idvar = "observation",
+                                          varying = c("proper1997", "year1997", "revpar1997", "comprev1997", "loyal1997",
+                                                      "proper1998", "year1998", "revpar1998", "comprev1998", "loyal1998",
+                                                      "proper1999", "year1999", "revpar1999", "comprev1999", "loyal1999",
+                                                      "proper2000", "year2000", "revpar2000", "comprev2000", "loyal2000"),
+                                          sep = "",
+                                          timevar = "year",
+                                          times = c(1997,1998,1999,2000),
+                                          direction = "long")
+                                  
+
+guestfirstB.case.data <- read.csv("data/guestfirst-case-data-part-b.csv")
+save("guestfirstB.case.data", file = "data/guestfirstB_data")
+
+#Walking through the Teaching Notes
+#Part 1: Relationship Between Loyalty (loyal) and Revenue per Available Room (revpar) in Each Year
+#We could run four separate regressions
+fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1996,])
+summary(fit)
+
+fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1997,])
+summary(fit)
+
+fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1998,])
+summary(fit)
+
+fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1999,])
+summary(fit)
+
+fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 2000,])
+summary(fit)
+
+
+
+// Do things change if we control for the competitors' revenue?
+bysort year: regress revpar comprev loyal
+
+// What happens when we combine all four years of data?
+regress revpar comprev loyal
+
+// What if we add dummy variables for each site to our regression?
+// Note: This dataset already includes site dummies, but if they didn't, we could create them using the following code:
+  /**********************************************
+  //Code for creating dummy variables
+tab property, generate(propdum)
+**********************************************/
+  // The dummy variables are d1, d2, d3...d42
+// We don't have to type each variable - we can simply type "d1-d42," which incorporates them all
+regress revpar comprev loyal d1-d42
+// Alternatively, we could create dummy variables within the regression using the "i." command
+regress revpar comprev loyal i.property
+
+// closes your log
+log close
+
+// drops all data from Stata's memory
+clear
+
+
+
+________________________________________________________________________
 
 ## install.packages("psych")
 library("psych")
@@ -163,64 +233,6 @@ rm(list = ls())
 sink()
 
 
-
-  // Note: "data/guestfirst-case-data-part-a.csv" contains the "untransformed" version of the data
-// To transform that data, rather than use "data/guestfirst-case-data-part-b.csv" directly, do the following:
-  // this command reads the data into Stata
-insheet using "data/guestfirst-case-data-part-a.csv", names
-// create a company variable
-g company=_n
-// reshape the data
-reshape long proper year revpar comprev loyal, i(company) j(year_check)
-// make sure everything looks ok
-count
-count if year==year_check
-drop year_check
-save "data/guestfirst-case-data-part-a.dta", replace
-*************************************************************/
-  
-  // data should be placed in a folder named "data" in your directory 
-// the data is in .csv (comma seperated values) format
-// this command reads the data into Stata
-insheet using "data/guestfirst-case-data-part-b.csv", names
-// and this saves it as a Stata data file
-save "data/guestfirst-case-data-part-b.dta", replace
-
-// Walking through the Teaching Notes
-
-// Part 1: Relationship Between Loyalty (loyal) and Revenue per Available Room (revpar) in Each Year
-
-// We could run four separate regressions:
-  regress revpar loyal if year==1997
-regress revpar loyal if year==1998
-regress revpar loyal if year==1999
-regress revpar loyal if year==2000
-// Alternatively, we could use the "bysort" command, which automatically runs through each value of year
-bysort year: regress revpar loyal
-
-// Do things change if we control for the competitors' revenue?
-bysort year: regress revpar comprev loyal
-
-// What happens when we combine all four years of data?
-regress revpar comprev loyal
-
-// What if we add dummy variables for each site to our regression?
-// Note: This dataset already includes site dummies, but if they didn't, we could create them using the following code:
-  /**********************************************
-  //Code for creating dummy variables
-tab property, generate(propdum)
-**********************************************/
-  // The dummy variables are d1, d2, d3...d42
-// We don't have to type each variable - we can simply type "d1-d42," which incorporates them all
-regress revpar comprev loyal d1-d42
-// Alternatively, we could create dummy variables within the regression using the "i." command
-regress revpar comprev loyal i.property
-
-// closes your log
-log close
-
-// drops all data from Stata's memory
-clear
 
 
 
