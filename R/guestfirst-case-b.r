@@ -43,6 +43,19 @@ load("data/guestfirstB_data")
 guestfirstB.case.data$LoyalLag<-shift(guestfirstB.case.data$Loyal, n=1L, fill=NA, type=c("lag"), give.names=FALSE)
 
 
+#dt<-data.frame(guestfirstB.case.data)
+#dt[, shift(guestfirstB.case.data$Loyal, 1, 0, "lead")]
+dt <- data.table(guestfirstB.case.data)
+dt[,Loyal_lag2:=shift(Loyal, 1), by=Property]
+#dt[,Loyal_lag1:=shift(Loyal, 1)]
+#lagpad <- function(x, k) c(rep(NA, k), x)[1:length(x)] 
+#dt[,indpct_slow:=(ind/lagpad(ind, 1))-1, by=entity]
+
+dt[,mpg_forward1:=shift(mpg, 1, type='lead')]
+head(dt)
+
+#dt[, shift(guestfirstB.case.data$Loyal, n=1L, fill=NA, type=c("lag"))]
+#dt[, shift(guestfirstB.case.data$Loyal, n=1L, fill=NA, type=c("lag")), by=guestfirstB.case.data$Property]
 
 
 #Walking through the Teaching Notes
