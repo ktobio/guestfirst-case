@@ -52,57 +52,19 @@ dt[, Loyal_lag3:=shift(Loyal, 1), by=Property]
 #lagpad <- function(x, k) c(rep(NA, k), x)[1:length(x)] 
 #dt[,indpct_slow:=(ind/lagpad(ind, 1))-1, by=entity]
 
-dt[,mpg_forward1:=shift(mpg, 1, type='lead')]
-head(dt)
 
 #dt[, shift(guestfirstB.case.data$Loyal, n=1L, fill=NA, type=c("lag"))]
 #dt[, shift(guestfirstB.case.data$Loyal, n=1L, fill=NA, type=c("lag")), by=guestfirstB.case.data$Property]
 
-
-#Walking through the Teaching Notes
-#Part 1: Relationship Between Loyalty (loyal) and Revenue per Available Room (revpar) in Each Year
-#We could run four separate regressions
-fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1996,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1997,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1998,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1999,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 2000,])
-summary(fit)
-
-# Do things change if we control for the competitors' revenue?
-fit <- lm(RevPar ~ Loyal + CompRevPar,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1996,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal + CompRevPar,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1997,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal + CompRevPar,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1998,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal + CompRevPar,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 1999,])
-summary(fit)
-
-fit <- lm(RevPar ~ Loyal + CompRevPar,  data = guestfirstB.case.data[guestfirstB.case.data$Year == 2000,])
-summary(fit)
-
-#What happens when we combine all four years of data?
-fit <- lm(RevPar ~ Loyal + CompRevPar,  data = guestfirstB.case.data)
-summary(fit)
-
-#What if we add dummy variables for each site to our regression?
-#Note: This dataset already includes site dummies, but if they didn't, we could create them using the following code:
-
+# Step 4: Run the regression analysis with and without the lagged variables
+# Creating the dummy variables for each property
 guestfirstB.case.data$Property = factor(guestfirstB.case.data$Property)
 fit <- lm(RevPar ~ Loyal + CompRevPar + Property,  data = guestfirstB.case.data)
 summary(fit)
+# Adding the lagged variable
+fit <- lm(RevPar ~ Loyal + CompRevPar + Property + Loyal_lag3,  data = guestfirstB.case.data)
+summary(fit)
+
 
 # This clears R's data memory so new data can be loaded
 
